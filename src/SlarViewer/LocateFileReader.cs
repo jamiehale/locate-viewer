@@ -65,8 +65,8 @@ namespace SlarViewer
 
         private void LoadAllData(LocateFile file)
         {
-            List<Datum> channel1Data = new List<Datum>();
-            List<Datum> channel2Data = new List<Datum>();
+            DataSet channel1Data = new DataSet();
+            DataSet channel2Data = new DataSet();
 
             string line;
             while ((line = streamReader.ReadLine()) != null)

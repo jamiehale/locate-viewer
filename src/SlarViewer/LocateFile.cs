@@ -12,15 +12,15 @@ namespace SlarViewer
             Calibration3KHz = new Calibration();
             Calibration24KHz = new Calibration();
             CalibrationMixed = new Calibration();
-            Channel1CalibratedData = new List<Datum>();
-            Channel2CalibratedData = new List<Datum>();
+            Channel1CalibratedData = new DataSet();
+            Channel2CalibratedData = new DataSet();
             MixedCalibratedData = new DataSet();
         }
 
-        public List<Datum> Channel1Data { get; set; }
-        public List<Datum> Channel2Data { get; set; }
-        public List<Datum> Channel1CalibratedData { get; set; }
-        public List<Datum> Channel2CalibratedData { get; set; }
+        public DataSet Channel1Data { get; set; }
+        public DataSet Channel2Data { get; set; }
+        public DataSet Channel1CalibratedData { get; set; }
+        public DataSet Channel2CalibratedData { get; set; }
         public DataSet MixedCalibratedData { get; set; }
 
         public Calibration Calibration3KHz { get; set; }
