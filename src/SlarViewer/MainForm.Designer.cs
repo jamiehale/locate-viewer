@@ -39,6 +39,10 @@
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.xChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.phaseLabel = new System.Windows.Forms.Label();
+            this.gainLabel = new System.Windows.Forms.Label();
+            this.phaseTrackbar = new System.Windows.Forms.TrackBar();
+            this.gainTrackbar = new System.Windows.Forms.TrackBar();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.slideRightButton = new System.Windows.Forms.Button();
             this.slideLeftButton = new System.Windows.Forms.Button();
@@ -55,6 +59,8 @@
             this.splitContainer2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.xChart)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.phaseTrackbar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gainTrackbar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -66,6 +72,7 @@
             chartArea1.AxisX.Interval = 1000D;
             chartArea1.AxisX.Maximum = 6000D;
             chartArea1.AxisX.Minimum = 0D;
+            chartArea1.AxisX.ScaleView.Zoomable = false;
             chartArea1.CursorX.AutoScroll = false;
             chartArea1.Name = "Main";
             this.yChart.ChartAreas.Add(chartArea1);
@@ -149,6 +156,10 @@
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.phaseLabel);
+            this.panel1.Controls.Add(this.gainLabel);
+            this.panel1.Controls.Add(this.phaseTrackbar);
+            this.panel1.Controls.Add(this.gainTrackbar);
             this.panel1.Controls.Add(this.chart1);
             this.panel1.Controls.Add(this.slideRightButton);
             this.panel1.Controls.Add(this.slideLeftButton);
@@ -156,6 +167,46 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(242, 548);
             this.panel1.TabIndex = 4;
+            // 
+            // phaseLabel
+            // 
+            this.phaseLabel.AutoSize = true;
+            this.phaseLabel.Location = new System.Drawing.Point(159, 299);
+            this.phaseLabel.Name = "phaseLabel";
+            this.phaseLabel.Size = new System.Drawing.Size(35, 13);
+            this.phaseLabel.TabIndex = 11;
+            this.phaseLabel.Text = "label1";
+            // 
+            // gainLabel
+            // 
+            this.gainLabel.AutoSize = true;
+            this.gainLabel.Location = new System.Drawing.Point(160, 248);
+            this.gainLabel.Name = "gainLabel";
+            this.gainLabel.Size = new System.Drawing.Size(35, 13);
+            this.gainLabel.TabIndex = 10;
+            this.gainLabel.Text = "label1";
+            // 
+            // phaseTrackbar
+            // 
+            this.phaseTrackbar.Location = new System.Drawing.Point(49, 299);
+            this.phaseTrackbar.Maximum = 100;
+            this.phaseTrackbar.Minimum = -100;
+            this.phaseTrackbar.Name = "phaseTrackbar";
+            this.phaseTrackbar.Size = new System.Drawing.Size(104, 45);
+            this.phaseTrackbar.TabIndex = 9;
+            this.phaseTrackbar.TickFrequency = 25;
+            this.phaseTrackbar.Scroll += new System.EventHandler(this.phaseTrackbar_Scroll);
+            // 
+            // gainTrackbar
+            // 
+            this.gainTrackbar.Location = new System.Drawing.Point(49, 248);
+            this.gainTrackbar.Maximum = 100;
+            this.gainTrackbar.Minimum = -100;
+            this.gainTrackbar.Name = "gainTrackbar";
+            this.gainTrackbar.Size = new System.Drawing.Size(104, 45);
+            this.gainTrackbar.TabIndex = 8;
+            this.gainTrackbar.TickFrequency = 25;
+            this.gainTrackbar.Scroll += new System.EventHandler(this.gainTrackbar_Scroll);
             // 
             // chart1
             // 
@@ -175,7 +226,7 @@
             // 
             // slideRightButton
             // 
-            this.slideRightButton.Location = new System.Drawing.Point(145, 250);
+            this.slideRightButton.Location = new System.Drawing.Point(130, 415);
             this.slideRightButton.Name = "slideRightButton";
             this.slideRightButton.Size = new System.Drawing.Size(75, 23);
             this.slideRightButton.TabIndex = 6;
@@ -185,7 +236,7 @@
             // 
             // slideLeftButton
             // 
-            this.slideLeftButton.Location = new System.Drawing.Point(64, 250);
+            this.slideLeftButton.Location = new System.Drawing.Point(49, 415);
             this.slideLeftButton.Name = "slideLeftButton";
             this.slideLeftButton.Size = new System.Drawing.Size(75, 23);
             this.slideLeftButton.TabIndex = 5;
@@ -221,6 +272,9 @@
             this.splitContainer2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.xChart)).EndInit();
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.phaseTrackbar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gainTrackbar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.ResumeLayout(false);
 
@@ -238,6 +292,10 @@
         private System.Windows.Forms.ToolStripMenuItem firstToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.DataVisualization.Charting.Chart xChart;
+        private System.Windows.Forms.TrackBar phaseTrackbar;
+        private System.Windows.Forms.TrackBar gainTrackbar;
+        private System.Windows.Forms.Label phaseLabel;
+        private System.Windows.Forms.Label gainLabel;
     }
 }
 

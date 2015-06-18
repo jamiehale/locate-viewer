@@ -30,6 +30,11 @@ namespace SlarViewer
         private MixedCalibratedDataSet[] mixedCalibratedData = new MixedCalibratedDataSet[2];
         private bool[] showMixedCalibrated = new bool[2];
 
+        private SubtractedDataSet subtractedData;
+
+        private double selectedMin = 0.0;
+        private double selectedMax = 6000.0;
+
         DataSet aggregateMixedSet;
 
         public MainForm()
@@ -44,8 +49,6 @@ namespace SlarViewer
              * */
 
             /*
-            yChart.ChartAreas[0].CursorX.IsUserEnabled = true;
-            yChart.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
              * */
         }
 
@@ -81,6 +84,11 @@ namespace SlarViewer
                     xChart.Series.Add(CreateSeries(mixedCalibratedData[i].Data, "", new GetValueDelegate(GetX)));
                 }
             }
+
+            subtractedData = new SubtractedDataSet(mixedCalibratedData[0].Data, mixedCalibratedData[1].Data);
+
+            aggregateChart.Series.Clear();
+            aggregateChart.Series.Add(CreateSeries(subtractedData.Data, "", new GetValueDelegate(GetY)));
         }
 
         private void LoadFile(int index, string filename)
@@ -99,6 +107,37 @@ namespace SlarViewer
 
             mixedCalibration[index] = loadedFiles[index].CalibrationMixed;
             mixedCalibratedData[index] = new MixedCalibratedDataSet(mixedCalibration[index], calibratedData3KHz[index].Data, calibratedData24KHz[index].Data);
+
+            gainTrackbar.Value = GainToTrackBarValue(calibration3KHz[0].Gain);
+            phaseTrackbar.Value = PhaseToTrackBarValue(calibration3KHz[0].Phase);
+
+            UpdateCalibrationLabels();
+        }
+
+        private void UpdateCalibrationLabels()
+        {
+            gainLabel.Text = calibration3KHz[0].Gain.ToString("0.0000");
+            phaseLabel.Text = calibration3KHz[0].Phase.ToString("0.0000");
+        }
+
+        private int PhaseToTrackBarValue(float p)
+        {
+            return (int)(((p + 2 * Math.PI) / (4 * Math.PI)) * 200 - 100);
+        }
+
+        private float TrackBarValueToPhase(int p)
+        {
+            return (float)(((p + 100) / 200.0) * 4 * Math.PI - 2 * Math.PI);
+        }
+
+        private int GainToTrackBarValue(float g)
+        {
+            return (int)(((g + 3) / 6) * 200 - 100);
+        }
+
+        private float TrackBarValueToGain(int g)
+        {
+            return (float)(((g + 100) / 200.0) * 6 - 3);
         }
 
         private delegate float GetValueDelegate(Datum datum);
@@ -284,24 +323,52 @@ namespace SlarViewer
             LoadFile(1, "..\\..\\..\\..\\data\\minus1.dat");
 
             RebuildCharts();
+
+            yChart.ChartAreas[0].CursorX.IsUserEnabled = true;
+            yChart.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
         }
 
         void firstChart_CursorPositionChanged(object sender, System.Windows.Forms.DataVisualization.Charting.CursorEventArgs e)
         {
-            double min = Math.Min(yChart.ChartAreas[0].CursorX.SelectionStart, yChart.ChartAreas[0].CursorX.SelectionEnd);
-            double max = Math.Max(yChart.ChartAreas[0].CursorX.SelectionStart, yChart.ChartAreas[0].CursorX.SelectionEnd);
-            UpdateXY(min, max);
+            selectedMin = Math.Min(yChart.ChartAreas[0].CursorX.SelectionStart, yChart.ChartAreas[0].CursorX.SelectionEnd);
+            selectedMax = Math.Max(yChart.ChartAreas[0].CursorX.SelectionStart, yChart.ChartAreas[0].CursorX.SelectionEnd);
+            UpdateXY();
         }
 
-        private void UpdateXY(double start, double end)
+        private void UpdateXY()
         {
-            chart1.Series[0] = new Series();
-            chart1.Series[0].ChartType = SeriesChartType.FastLine;
-            foreach (Datum datum in loadedFiles[0].Channel1Data)
-                if(datum.AxialPosition > start && datum.AxialPosition < end)
-                    chart1.Series[0].Points.AddXY(datum.Data.X, datum.Data.Y);
+            chart1.Series.Clear();
+            chart1.Series.Add(CreateXYSeries(rawData3KHz[0], selectedMin, selectedMax));
+            chart1.Series.Add(CreateXYSeries(calibratedData3KHz[0].Data, selectedMin, selectedMax));
         }
 
+        private Series CreateXYSeries(DataSet dataSet, double start, double end)
+        {
+            Series series = new Series();
+            series.ChartType = SeriesChartType.FastLine;
+            foreach (Datum datum in dataSet)
+                if (datum.AxialPosition > start && datum.AxialPosition < end)
+                    series.Points.AddXY(datum.Data.X, datum.Data.Y);
+            return series;
+        }
+
+        private void gainTrackbar_Scroll(object sender, EventArgs e)
+        {
+            TrackBar trackBar = (TrackBar)sender;
+            calibration3KHz[0].Gain = TrackBarValueToGain(trackBar.Value);
+            UpdateCalibrationLabels();
+            RebuildCharts();
+            UpdateXY();
+        }
+
+        private void phaseTrackbar_Scroll(object sender, EventArgs e)
+        {
+            TrackBar trackBar = (TrackBar)sender;
+            calibration3KHz[0].Phase = TrackBarValueToPhase(trackBar.Value);
+            UpdateCalibrationLabels();
+            RebuildCharts();
+            UpdateXY();
+        }
 
     }
 }

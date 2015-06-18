@@ -50,7 +50,8 @@ namespace SlarViewer
         void calibration_CalibrationChanged(Calibration sender)
         {
             RebuildCalibratedData();
-            DataSetChanged(calibratedData);
+            if (DataSetChanged != null)
+                DataSetChanged(calibratedData);
         }
 
         private void RebuildCalibratedData()
