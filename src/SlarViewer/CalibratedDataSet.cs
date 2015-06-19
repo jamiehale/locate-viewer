@@ -35,28 +35,29 @@ namespace SlarViewer
         }
 
         public event DataSetChangedHandler DataSetChanged;
-        public delegate void DataSetChangedHandler(DataSet sender);
+        public delegate void DataSetChangedHandler();
 
-        public CalibratedDataSet(Calibration calibration, DataSet data)
+        public CalibratedDataSet(Calibration calibration, DataSet rawData)
         {
             this.calibration = calibration;
-            this.rawData = data;
+            this.rawData = rawData;
+
+            calibratedData = new DataSet();
+            RebuildCalibratedData();
 
             this.calibration.CalibrationChanged += new Calibration.CalibrationChangedHandler(calibration_CalibrationChanged);
-
-            RebuildCalibratedData();
         }
 
-        void calibration_CalibrationChanged(Calibration sender)
+        void calibration_CalibrationChanged()
         {
             RebuildCalibratedData();
             if (DataSetChanged != null)
-                DataSetChanged(calibratedData);
+                DataSetChanged();
         }
 
         private void RebuildCalibratedData()
         {
-            calibratedData = new DataSet();
+            calibratedData.Clear();
             foreach (Datum datum in rawData)
                 calibratedData.Add(datum.Apply(calibration));
         }

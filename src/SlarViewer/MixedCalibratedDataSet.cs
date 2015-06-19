@@ -8,29 +8,21 @@ namespace SlarViewer
     class MixedCalibratedDataSet
     {
         private Calibration calibration;
-        public Calibration Calibration
-        {
-            get
-            {
-                return calibration;
-            }
-        }
+        private CalibratedDataSet firstData;
+        private CalibratedDataSet secondData;
+        private int shift = 0;
 
-        private DataSet firstRawData;
-        public DataSet FirstRawData
+        public int Shift
         {
             get
             {
-                return firstRawData;
+                return shift;
             }
-        }
-
-        private DataSet secondRawData;
-        public DataSet SecondRawData
-        {
-            get
+            set
             {
-                return secondRawData;
+                shift = value;
+                RebuildData();
+                NotifyListeners();
             }
         }
 
@@ -44,30 +36,52 @@ namespace SlarViewer
         }
 
         public event DataSetChangedHandler DataSetChanged;
-        public delegate void DataSetChangedHandler(DataSet sender);
+        public delegate void DataSetChangedHandler();
 
-        public MixedCalibratedDataSet(Calibration calibration, DataSet firstData, DataSet secondData)
+        public MixedCalibratedDataSet(Calibration calibration, CalibratedDataSet firstData, CalibratedDataSet secondData)
         {
             this.calibration = calibration;
-            this.firstRawData = firstData;
-            this.secondRawData = secondData;
+            this.firstData = firstData;
+            this.secondData = secondData;
+
+            calibratedData = new DataSet();
+
+            RebuildData();
 
             this.calibration.CalibrationChanged += new Calibration.CalibrationChangedHandler(calibration_CalibrationChanged);
-
-            RebuildData();
+            this.firstData.DataSetChanged += new CalibratedDataSet.DataSetChangedHandler(firstData_DataSetChanged);
+            this.secondData.DataSetChanged += new CalibratedDataSet.DataSetChangedHandler(secondData_DataSetChanged);
         }
 
-        void calibration_CalibrationChanged(Calibration sender)
+        void secondData_DataSetChanged()
         {
             RebuildData();
-            DataSetChanged(calibratedData);
+            NotifyListeners();
+        }
+
+        void firstData_DataSetChanged()
+        {
+            RebuildData();
+            NotifyListeners();
+        }
+
+        private void NotifyListeners()
+        {
+            if (DataSetChanged != null)
+                DataSetChanged();
+        }
+
+        void calibration_CalibrationChanged()
+        {
+            RebuildData();
+            NotifyListeners();
         }
 
         private void RebuildData()
         {
-            calibratedData = new DataSet();
-            for (int i = 0; i < Math.Min(firstRawData.Count, secondRawData.Count); ++i)
-                calibratedData.Add(firstRawData[i].Subtract(secondRawData[i]).Apply(calibration));
+            calibratedData.Clear();
+            for (int i = 0; i < Math.Min(firstData.Data.Count, secondData.Data.Count); ++i)
+                calibratedData.Add(firstData.Data[i].Subtract(secondData.Data[i].Shift(shift)).Apply(calibration));
         }
     }
 }

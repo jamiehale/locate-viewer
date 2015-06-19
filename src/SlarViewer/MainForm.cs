@@ -35,7 +35,7 @@ namespace SlarViewer
         private double selectedMin = 0.0;
         private double selectedMax = 6000.0;
 
-        DataSet aggregateMixedSet;
+        private int shift = 0;
 
         public MainForm()
         {
@@ -85,8 +85,6 @@ namespace SlarViewer
                 }
             }
 
-            subtractedData = new SubtractedDataSet(mixedCalibratedData[0].Data, mixedCalibratedData[1].Data);
-
             aggregateChart.Series.Clear();
             aggregateChart.Series.Add(CreateSeries(subtractedData.Data, "", new GetValueDelegate(GetY)));
         }
@@ -106,12 +104,15 @@ namespace SlarViewer
             calibratedData24KHz[index] = new CalibratedDataSet(calibration24KHz[index], rawData24KHz[index]);
 
             mixedCalibration[index] = loadedFiles[index].CalibrationMixed;
-            mixedCalibratedData[index] = new MixedCalibratedDataSet(mixedCalibration[index], calibratedData3KHz[index].Data, calibratedData24KHz[index].Data);
+            mixedCalibratedData[index] = new MixedCalibratedDataSet(mixedCalibration[index], calibratedData3KHz[index], calibratedData24KHz[index]);
 
             gainTrackbar.Value = GainToTrackBarValue(calibration3KHz[0].Gain);
             phaseTrackbar.Value = PhaseToTrackBarValue(calibration3KHz[0].Phase);
 
             UpdateCalibrationLabels();
+
+            if (mixedCalibratedData[0] != null && mixedCalibratedData[1] != null)
+                subtractedData = new SubtractedDataSet(mixedCalibratedData[0], mixedCalibratedData[1]);
         }
 
         private void UpdateCalibrationLabels()
@@ -170,20 +171,16 @@ namespace SlarViewer
 
         private void slideLeftButton_Click(object sender, EventArgs e)
         {
-            /*
-            secondMixedSet = secondMixedSet.Shift(-1);
-            yChart.Series[1] = CreateSeries(secondMixedSet, "Y2 Mixed");
-            aggregateChart.Series[0] = CreateSeries(firstMixedSet.Subtract(secondMixedSet), "Test");
-             * */
+            shift -= 1;
+            mixedCalibratedData[1].Shift = shift;
+            RebuildCharts();
         }
 
         private void slideRightButton_Click(object sender, EventArgs e)
         {
-            /*
-            secondMixedSet = secondMixedSet.Shift(1);
-            yChart.Series[1] = CreateSeries(secondMixedSet, "Y2 Mixed");
-            aggregateChart.Series[0] = CreateSeries(firstMixedSet.Subtract(secondMixedSet), "Test");
-             * */
+            shift += 1;
+            mixedCalibratedData[1].Shift = shift;
+            RebuildCharts();
         }
 
         private delegate void MenuAction(object sender, EventArgs e);

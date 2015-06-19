@@ -36,7 +36,7 @@ namespace SlarViewer
         }
 
         public event CalibrationChangedHandler CalibrationChanged;
-        public delegate void CalibrationChangedHandler(Calibration sender);
+        public delegate void CalibrationChangedHandler();
 
         public Calibration()
         {
@@ -57,7 +57,7 @@ namespace SlarViewer
         private void NotifyListeners()
         {
             if (CalibrationChanged != null)
-                CalibrationChanged(this);
+                CalibrationChanged();
         }
     }
 }
