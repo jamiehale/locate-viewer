@@ -80,8 +80,28 @@ namespace SlarViewer
         private void RebuildData()
         {
             calibratedData.Clear();
-            for (int i = 0; i < Math.Min(firstData.Data.Count, secondData.Data.Count); ++i)
-                calibratedData.Add(firstData.Data[i].Subtract(secondData.Data[i].Shift(shift)).Apply(calibration));
+
+            VectorBucket[] firstBuckets = new VectorBucket[6000];
+            foreach (Datum datum in firstData.Data)
+            {
+                int index = Math.Max(0, (int)datum.AxialPosition);
+                if (firstBuckets[index] == null)
+                    firstBuckets[index] = new VectorBucket();
+                firstBuckets[index].Add(datum.Data);
+            }
+
+            VectorBucket[] secondBuckets = new VectorBucket[6000];
+            foreach (Datum datum in secondData.Data)
+            {
+                int index = Math.Max(0, (int)datum.AxialPosition);
+                if (secondBuckets[index] == null)
+                    secondBuckets[index] = new VectorBucket();
+                secondBuckets[index].Add(datum.Data);
+            }
+
+            for (int i = 0; i < 6000; ++i)
+                if (firstBuckets[i] != null && secondBuckets[i] != null)
+                    calibratedData.Add(new Datum(firstBuckets[i].Average().Subtract(secondBuckets[i].Average()).Apply(calibration), i + shift));
         }
     }
 }

@@ -46,27 +46,27 @@ namespace SlarViewer
         {
             data.Clear();
 
-            VectorBucket[] firstBucket = new VectorBucket[6000];
+            VectorBucket[] firstBuckets = new VectorBucket[6000];
             foreach (Datum datum in firstData.Data)
             {
                 int index = Math.Max(0, (int)datum.AxialPosition);
-                if (firstBucket[index] == null)
-                    firstBucket[index] = new VectorBucket();
-                firstBucket[index].Add(datum.Data);
+                if (firstBuckets[index] == null)
+                    firstBuckets[index] = new VectorBucket();
+                firstBuckets[index].Add(datum.Data);
             }
 
-            VectorBucket[] secondBucket = new VectorBucket[6000];
+            VectorBucket[] secondBuckets = new VectorBucket[6000];
             foreach (Datum datum in secondData.Data)
             {
                 int index = Math.Max(0, (int)datum.AxialPosition);
-                if (secondBucket[index] == null)
-                    secondBucket[index] = new VectorBucket();
-                secondBucket[index].Add(datum.Data);
+                if (secondBuckets[index] == null)
+                    secondBuckets[index] = new VectorBucket();
+                secondBuckets[index].Add(datum.Data);
             }
 
             for (int i = 0; i < 6000; ++i)
-                if (firstBucket[i] != null && secondBucket[i] != null)
-                    data.Add(new Datum(firstBucket[i].Average().Subtract(secondBucket[i].Average()), i));
+                if (firstBuckets[i] != null && secondBuckets[i] != null)
+                    data.Add(new Datum(firstBuckets[i].Average().Subtract(secondBuckets[i].Average()), i));
         }
     }
 }

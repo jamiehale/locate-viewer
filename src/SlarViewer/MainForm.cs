@@ -35,24 +35,16 @@ namespace SlarViewer
         private double selectedMin = 0.0;
         private double selectedMax = 6000.0;
 
+        private Calibration selectedCalibration;
+
         private int shift = 0;
 
         public MainForm()
         {
             InitializeComponent();
-
-            //aggregateChart.Series.Add(CreateSeries(firstMixedSet.Subtract(secondMixedSet), "Test"));
-
-            /*
-            foreach (Datum datum in loadedFiles[0].Channel1Data)
-                chart1.Series[0].Points.AddXY(datum.Data.X, datum.Data.Y);
-             * */
-
-            /*
-             * */
         }
 
-        private void RebuildCharts()
+        private void RebuildAllCharts()
         {
             yChart.Series.Clear();
             xChart.Series.Clear();
@@ -87,6 +79,36 @@ namespace SlarViewer
 
             aggregateChart.Series.Clear();
             aggregateChart.Series.Add(CreateSeries(subtractedData.Data, "", new GetValueDelegate(GetY)));
+
+            RebuildXYCharts();
+        }
+
+        private void RebuildXYCharts()
+        {
+            chart1.Series.Clear();
+            for (int i = 0; i < 2; ++i)
+            {
+                if (show3KHzRaw[i])
+                {
+                    chart1.Series.Add(CreateXYSeries(rawData3KHz[i], selectedMin, selectedMax));
+                }
+                if (show3KHzCalibrated[i])
+                {
+                    chart1.Series.Add(CreateXYSeries(calibratedData3KHz[i].Data, selectedMin, selectedMax));
+                }
+                if (show24KHzRaw[i])
+                {
+                    chart1.Series.Add(CreateXYSeries(rawData24KHz[i], selectedMin, selectedMax));
+                }
+                if (show24KHzCalibrated[i])
+                {
+                    chart1.Series.Add(CreateXYSeries(calibratedData24KHz[i].Data, selectedMin, selectedMax));
+                }
+                if (showMixedCalibrated[i])
+                {
+                    chart1.Series.Add(CreateXYSeries(mixedCalibratedData[i].Data, selectedMin, selectedMax));
+                }
+            }
         }
 
         private void LoadFile(int index, string filename)
@@ -106,19 +128,29 @@ namespace SlarViewer
             mixedCalibration[index] = loadedFiles[index].CalibrationMixed;
             mixedCalibratedData[index] = new MixedCalibratedDataSet(mixedCalibration[index], calibratedData3KHz[index], calibratedData24KHz[index]);
 
-            gainTrackbar.Value = GainToTrackBarValue(calibration3KHz[0].Gain);
-            phaseTrackbar.Value = PhaseToTrackBarValue(calibration3KHz[0].Phase);
-
+            UpdateTrackBarsFromSelectedCalibration();
             UpdateCalibrationLabels();
 
             if (mixedCalibratedData[0] != null && mixedCalibratedData[1] != null)
                 subtractedData = new SubtractedDataSet(mixedCalibratedData[0], mixedCalibratedData[1]);
         }
 
+        private void UpdateTrackBarsFromSelectedCalibration()
+        {
+            if (selectedCalibration != null)
+            {
+                gainTrackbar.Value = GainToTrackBarValue(selectedCalibration.Gain);
+                phaseTrackbar.Value = PhaseToTrackBarValue(selectedCalibration.Phase);
+            }
+        }
+
         private void UpdateCalibrationLabels()
         {
-            gainLabel.Text = calibration3KHz[0].Gain.ToString("0.0000");
-            phaseLabel.Text = calibration3KHz[0].Phase.ToString("0.0000");
+            if (selectedCalibration != null)
+            {
+                gainLabel.Text = selectedCalibration.Gain.ToString("0.0000");
+                phaseLabel.Text = selectedCalibration.Phase.ToString("0.0000");
+            }
         }
 
         private int PhaseToTrackBarValue(float p)
@@ -163,24 +195,18 @@ namespace SlarViewer
             return series;
         }
 
-        private void secondFileAxialSlider_Scroll(object sender, EventArgs e)
-        {
-            TrackBar slider = (TrackBar)sender;
-
-        }
-
         private void slideLeftButton_Click(object sender, EventArgs e)
         {
             shift -= 1;
             mixedCalibratedData[1].Shift = shift;
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         private void slideRightButton_Click(object sender, EventArgs e)
         {
             shift += 1;
             mixedCalibratedData[1].Shift = shift;
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         private delegate void MenuAction(object sender, EventArgs e);
@@ -226,31 +252,31 @@ namespace SlarViewer
         void firstMixedCal_Click(object sender, EventArgs e)
         {
             showMixedCalibrated[0] = !showMixedCalibrated[0];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void first24KHzCal_Click(object sender, EventArgs e)
         {
             show24KHzCalibrated[0] = !show24KHzCalibrated[0];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void first24KHzRaw_Click(object sender, EventArgs e)
         {
             show24KHzRaw[0] = !show24KHzRaw[0];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void first3KHzCal_Click(object sender, EventArgs e)
         {
             show3KHzCalibrated[0] = !show3KHzCalibrated[0];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void first3KHzRaw_Click(object sender, EventArgs e)
         {
             show3KHzRaw[0] = !show3KHzRaw[0];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void firstOpen_Click(object sender, EventArgs e)
@@ -261,31 +287,31 @@ namespace SlarViewer
         void secondMixedCal_Click(object sender, EventArgs e)
         {
             showMixedCalibrated[1] = !showMixedCalibrated[1];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void second24KHzCal_Click(object sender, EventArgs e)
         {
             show24KHzCalibrated[1] = !show24KHzCalibrated[1];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void second24KHzRaw_Click(object sender, EventArgs e)
         {
             show24KHzRaw[1] = !show24KHzRaw[1];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void second3KHzCal_Click(object sender, EventArgs e)
         {
             show3KHzCalibrated[1] = !show3KHzCalibrated[1];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void second3KHzRaw_Click(object sender, EventArgs e)
         {
             show3KHzRaw[1] = !show3KHzRaw[1];
-            RebuildCharts();
+            RebuildAllCharts();
         }
 
         void secondOpen_Click(object sender, EventArgs e)
@@ -301,42 +327,46 @@ namespace SlarViewer
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 LoadFile(index, dialog.FileName);
-                RebuildCharts();
+                RebuildAllCharts();
             }
         }
-
-        /*
-        private void UpdateDisplay(Chart chart, List<DisplaySet> displaySets)
-        {
-            foreach (DisplaySet set in displaySets)
-            {
-            }
-        }
-         * */
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             LoadFile(0, "..\\..\\..\\..\\data\\now.dat");
             LoadFile(1, "..\\..\\..\\..\\data\\minus1.dat");
 
-            RebuildCharts();
+            show3KHzRaw[0] = true;
+            show3KHzCalibrated[0] = true;
 
             yChart.ChartAreas[0].CursorX.IsUserEnabled = true;
             yChart.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
+
+            calibrationDropList.Items.Add("First 3KHz");
+            calibrationDropList.Items.Add("First 24KHz");
+            calibrationDropList.Items.Add("First Mixed");
+            calibrationDropList.Items.Add("Second 3KHz");
+            calibrationDropList.Items.Add("Second 24KHz");
+            calibrationDropList.Items.Add("Second Mixed");
+            calibrationDropList.SelectedIndex = 0;
+
+            selectedCalibration = calibration3KHz[0];
+
+            yChart.ChartAreas[0].Axes[1].Minimum = -10000;
+            yChart.ChartAreas[0].Axes[1].Maximum= 10000;
+            xChart.ChartAreas[0].Axes[1].Minimum = -10000;
+            xChart.ChartAreas[0].Axes[1].Maximum = 10000;
+            aggregateChart.ChartAreas[0].Axes[1].Minimum = -10000;
+            aggregateChart.ChartAreas[0].Axes[1].Maximum= 10000;
+
+            RebuildAllCharts();
         }
 
         void firstChart_CursorPositionChanged(object sender, System.Windows.Forms.DataVisualization.Charting.CursorEventArgs e)
         {
             selectedMin = Math.Min(yChart.ChartAreas[0].CursorX.SelectionStart, yChart.ChartAreas[0].CursorX.SelectionEnd);
             selectedMax = Math.Max(yChart.ChartAreas[0].CursorX.SelectionStart, yChart.ChartAreas[0].CursorX.SelectionEnd);
-            UpdateXY();
-        }
-
-        private void UpdateXY()
-        {
-            chart1.Series.Clear();
-            chart1.Series.Add(CreateXYSeries(rawData3KHz[0], selectedMin, selectedMax));
-            chart1.Series.Add(CreateXYSeries(calibratedData3KHz[0].Data, selectedMin, selectedMax));
+            RebuildXYCharts();
         }
 
         private Series CreateXYSeries(DataSet dataSet, double start, double end)
@@ -352,19 +382,44 @@ namespace SlarViewer
         private void gainTrackbar_Scroll(object sender, EventArgs e)
         {
             TrackBar trackBar = (TrackBar)sender;
-            calibration3KHz[0].Gain = TrackBarValueToGain(trackBar.Value);
+            selectedCalibration.Gain = TrackBarValueToGain(trackBar.Value);
             UpdateCalibrationLabels();
-            RebuildCharts();
-            UpdateXY();
+            RebuildAllCharts();
         }
 
         private void phaseTrackbar_Scroll(object sender, EventArgs e)
         {
             TrackBar trackBar = (TrackBar)sender;
-            calibration3KHz[0].Phase = TrackBarValueToPhase(trackBar.Value);
+            selectedCalibration.Phase = TrackBarValueToPhase(trackBar.Value);
             UpdateCalibrationLabels();
-            RebuildCharts();
-            UpdateXY();
+            RebuildAllCharts();
+        }
+
+        private void calibrationDropList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (calibrationDropList.SelectedIndex)
+            {
+                case 0:
+                    selectedCalibration = calibration3KHz[0];
+                    break;
+                case 1:
+                    selectedCalibration = calibration24KHz[0];
+                    break;
+                case 2:
+                    selectedCalibration = mixedCalibration[0];
+                    break;
+                case 3:
+                    selectedCalibration = calibration3KHz[1];
+                    break;
+                case 4:
+                    selectedCalibration = calibration24KHz[1];
+                    break;
+                case 5:
+                    selectedCalibration = mixedCalibration[1];
+                    break;
+            }
+            UpdateTrackBarsFromSelectedCalibration();
+            UpdateCalibrationLabels();
         }
 
     }
