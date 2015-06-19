@@ -336,8 +336,10 @@ namespace SlarViewer
             LoadFile(0, "..\\..\\..\\..\\data\\now.dat");
             LoadFile(1, "..\\..\\..\\..\\data\\minus1.dat");
 
-            show3KHzRaw[0] = true;
-            show3KHzCalibrated[0] = true;
+            //show3KHzRaw[0] = true;
+            //show3KHzCalibrated[0] = true;
+            first3KHzCheckbox.Checked = true;
+            first3KHzCalibratedCheckbox.Checked = true;
 
             yChart.ChartAreas[0].CursorX.IsUserEnabled = true;
             yChart.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
@@ -420,6 +422,66 @@ namespace SlarViewer
             }
             UpdateTrackBarsFromSelectedCalibration();
             UpdateCalibrationLabels();
+        }
+
+        private void first3KHzCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            show3KHzRaw[0] = !show3KHzRaw[0];
+            RebuildAllCharts();
+        }
+
+        private void first3KHzCalibratedCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            show3KHzCalibrated[0] = !show3KHzCalibrated[0];
+            RebuildAllCharts();
+        }
+
+        private void first24KHzCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            show24KHzRaw[0] = !show24KHzRaw[0];
+            RebuildAllCharts();
+        }
+
+        private void first24KHzCalibratedCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            show24KHzCalibrated[0] = !show24KHzCalibrated[0];
+            RebuildAllCharts();
+        }
+
+        private void firstMixedCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            showMixedCalibrated[0] = !showMixedCalibrated[0];
+            RebuildAllCharts();
+        }
+
+        private void second3KHzCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            show3KHzRaw[1] = !show3KHzRaw[1];
+            RebuildAllCharts();
+        }
+
+        private void second3KHzCalibratedCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            show3KHzCalibrated[1] = !show3KHzCalibrated[1];
+            RebuildAllCharts();
+        }
+
+        private void second24KHzCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            show24KHzRaw[1] = !show24KHzRaw[1];
+            RebuildAllCharts();
+        }
+
+        private void second24KHzCalibratedCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            show24KHzCalibrated[1] = !show24KHzCalibrated[1];
+            RebuildAllCharts();
+        }
+
+        private void secondMixedCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            showMixedCalibrated[1] = !showMixedCalibrated[1];
+            RebuildAllCharts();
         }
 
     }
