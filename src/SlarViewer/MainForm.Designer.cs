@@ -92,6 +92,7 @@
             this.yChart.Size = new System.Drawing.Size(564, 180);
             this.yChart.TabIndex = 0;
             this.yChart.Text = "chart1";
+            this.yChart.CursorPositionChanging += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.CursorEventArgs>(this.yChart_CursorPositionChanging);
             this.yChart.CursorPositionChanged += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.CursorEventArgs>(this.firstChart_CursorPositionChanged);
             this.yChart.Click += new System.EventHandler(this.xyChart_Click);
             // 
@@ -342,12 +343,12 @@
             // phaseTrackbar
             // 
             this.phaseTrackbar.Location = new System.Drawing.Point(130, 243);
-            this.phaseTrackbar.Maximum = 100;
-            this.phaseTrackbar.Minimum = -100;
+            this.phaseTrackbar.Maximum = 1000;
+            this.phaseTrackbar.Minimum = -1000;
             this.phaseTrackbar.Name = "phaseTrackbar";
             this.phaseTrackbar.Size = new System.Drawing.Size(104, 45);
             this.phaseTrackbar.TabIndex = 9;
-            this.phaseTrackbar.TickFrequency = 25;
+            this.phaseTrackbar.TickFrequency = 250;
             this.phaseTrackbar.Scroll += new System.EventHandler(this.phaseTrackbar_Scroll);
             // 
             // slideRightButton
@@ -382,12 +383,12 @@
             // gainTrackbar
             // 
             this.gainTrackbar.Location = new System.Drawing.Point(3, 243);
-            this.gainTrackbar.Maximum = 100;
-            this.gainTrackbar.Minimum = -100;
+            this.gainTrackbar.Maximum = 1000;
+            this.gainTrackbar.Minimum = -1000;
             this.gainTrackbar.Name = "gainTrackbar";
             this.gainTrackbar.Size = new System.Drawing.Size(104, 45);
             this.gainTrackbar.TabIndex = 8;
-            this.gainTrackbar.TickFrequency = 25;
+            this.gainTrackbar.TickFrequency = 250;
             this.gainTrackbar.Scroll += new System.EventHandler(this.gainTrackbar_Scroll);
             // 
             // firstToolStripMenuItem

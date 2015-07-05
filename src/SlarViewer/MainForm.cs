@@ -155,22 +155,22 @@ namespace SlarViewer
 
         private int PhaseToTrackBarValue(float p)
         {
-            return (int)(((p + 2 * Math.PI) / (4 * Math.PI)) * 200 - 100);
+            return (int)(((p + 2 * Math.PI) / (4 * Math.PI)) * 2000 - 1000);
         }
 
         private float TrackBarValueToPhase(int p)
         {
-            return (float)(((p + 100) / 200.0) * 4 * Math.PI - 2 * Math.PI);
+            return (float)(((p + 1000) / 2000.0) * 4 * Math.PI - 2 * Math.PI);
         }
 
         private int GainToTrackBarValue(float g)
         {
-            return (int)(((g + 3) / 6) * 200 - 100);
+            return (int)(((g + 3) / 6) * 2000 - 1000);
         }
 
         private float TrackBarValueToGain(int g)
         {
-            return (float)(((g + 100) / 200.0) * 6 - 3);
+            return (float)(((g + 1000) / 2000.0) * 6 - 3);
         }
 
         private delegate float GetValueDelegate(Datum datum);
@@ -198,14 +198,20 @@ namespace SlarViewer
         private void slideLeftButton_Click(object sender, EventArgs e)
         {
             shift -= 1;
-            mixedCalibratedData[1].Shift = shift;
+            ShiftData();
             RebuildAllCharts();
+        }
+
+        private void ShiftData()
+        {
+            calibratedData3KHz[1].Shift = shift;
+            calibratedData24KHz[1].Shift = shift;
         }
 
         private void slideRightButton_Click(object sender, EventArgs e)
         {
             shift += 1;
-            mixedCalibratedData[1].Shift = shift;
+            ShiftData();
             RebuildAllCharts();
         }
 
@@ -354,12 +360,14 @@ namespace SlarViewer
 
             selectedCalibration = calibration3KHz[0];
 
+            /*
             yChart.ChartAreas[0].Axes[1].Minimum = -10000;
             yChart.ChartAreas[0].Axes[1].Maximum= 10000;
             xChart.ChartAreas[0].Axes[1].Minimum = -10000;
             xChart.ChartAreas[0].Axes[1].Maximum = 10000;
             aggregateChart.ChartAreas[0].Axes[1].Minimum = -10000;
             aggregateChart.ChartAreas[0].Axes[1].Maximum= 10000;
+             * */
 
             RebuildAllCharts();
         }
@@ -368,7 +376,24 @@ namespace SlarViewer
         {
             selectedMin = Math.Min(yChart.ChartAreas[0].CursorX.SelectionStart, yChart.ChartAreas[0].CursorX.SelectionEnd);
             selectedMax = Math.Max(yChart.ChartAreas[0].CursorX.SelectionStart, yChart.ChartAreas[0].CursorX.SelectionEnd);
+
+            SetAllSelectionsFromYChartSelection();
+
             RebuildXYCharts();
+        }
+
+        void yChart_CursorPositionChanging(object sender, System.Windows.Forms.DataVisualization.Charting.CursorEventArgs e)
+        {
+            SetAllSelectionsFromYChartSelection();
+        }
+
+        private void SetAllSelectionsFromYChartSelection()
+        {
+            xChart.ChartAreas[0].CursorX.SelectionStart = yChart.ChartAreas[0].CursorX.SelectionStart;
+            xChart.ChartAreas[0].CursorX.SelectionEnd = yChart.ChartAreas[0].CursorX.SelectionEnd;
+
+            aggregateChart.ChartAreas[0].CursorX.SelectionStart = yChart.ChartAreas[0].CursorX.SelectionStart;
+            aggregateChart.ChartAreas[0].CursorX.SelectionEnd = yChart.ChartAreas[0].CursorX.SelectionEnd;
         }
 
         private Series CreateXYSeries(DataSet dataSet, double start, double end)

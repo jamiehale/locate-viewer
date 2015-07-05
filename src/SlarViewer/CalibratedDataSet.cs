@@ -25,6 +25,22 @@ namespace SlarViewer
             }
         }
 
+        private int shift = 0;
+
+        public int Shift
+        {
+            get
+            {
+                return shift;
+            }
+            set
+            {
+                shift = value;
+                RebuildCalibratedData();
+                NotifyListeners();
+            }
+        }
+
         private DataSet calibratedData;
         public DataSet Data
         {
@@ -51,6 +67,11 @@ namespace SlarViewer
         void calibration_CalibrationChanged()
         {
             RebuildCalibratedData();
+            NotifyListeners();
+        }
+
+        private void NotifyListeners()
+        {
             if (DataSetChanged != null)
                 DataSetChanged();
         }
@@ -59,7 +80,7 @@ namespace SlarViewer
         {
             calibratedData.Clear();
             foreach (Datum datum in rawData)
-                calibratedData.Add(datum.Apply(calibration));
+                calibratedData.Add(datum.Apply(calibration).Shift(shift));
         }
     }
 }
