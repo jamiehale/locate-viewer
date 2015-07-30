@@ -46,6 +46,8 @@ namespace SlarViewer
 
         private void RebuildAllCharts()
         {
+            ResizeCharts();
+
             yChart.Series.Clear();
             xChart.Series.Clear();
             for (int i = 0; i < 2; ++i)
@@ -57,8 +59,11 @@ namespace SlarViewer
                 }
                 if (show3KHzCalibrated[i])
                 {
-                    yChart.Series.Add(CreateSeries(calibratedData3KHz[i].Data, "", new GetValueDelegate(GetY)));
-                    xChart.Series.Add(CreateSeries(calibratedData3KHz[i].Data, "", new GetValueDelegate(GetX)));
+                    if ( calibratedData3KHz[ i ] != null )
+                    {
+                        yChart.Series.Add( CreateSeries( calibratedData3KHz[ i ].Data, "", new GetValueDelegate( GetY ) ) );
+                        xChart.Series.Add( CreateSeries( calibratedData3KHz[ i ].Data, "", new GetValueDelegate( GetX ) ) );
+                    }
                 }
                 if (show24KHzRaw[i])
                 {
@@ -67,20 +72,66 @@ namespace SlarViewer
                 }
                 if (show24KHzCalibrated[i])
                 {
-                    yChart.Series.Add(CreateSeries(calibratedData24KHz[i].Data, "", new GetValueDelegate(GetY)));
-                    xChart.Series.Add(CreateSeries(calibratedData24KHz[i].Data, "", new GetValueDelegate(GetX)));
+                    if ( calibratedData24KHz[ i ] != null )
+                    {
+                        yChart.Series.Add( CreateSeries( calibratedData24KHz[ i ].Data, "", new GetValueDelegate( GetY ) ) );
+                        xChart.Series.Add( CreateSeries( calibratedData24KHz[ i ].Data, "", new GetValueDelegate( GetX ) ) );
+                    }
                 }
                 if (showMixedCalibrated[i])
                 {
-                    yChart.Series.Add(CreateSeries(mixedCalibratedData[i].Data, "", new GetValueDelegate(GetY)));
-                    xChart.Series.Add(CreateSeries(mixedCalibratedData[i].Data, "", new GetValueDelegate(GetX)));
+                    if ( mixedCalibratedData[ i ] != null )
+                    {
+                        yChart.Series.Add( CreateSeries( mixedCalibratedData[ i ].Data, "", new GetValueDelegate( GetY ) ) );
+                        xChart.Series.Add( CreateSeries( mixedCalibratedData[ i ].Data, "", new GetValueDelegate( GetX ) ) );
+                    }
                 }
             }
 
             aggregateChart.Series.Clear();
-            aggregateChart.Series.Add(CreateSeries(subtractedData.Data, "", new GetValueDelegate(GetY)));
+            if ( subtractedData != null )
+                aggregateChart.Series.Add( CreateSeries( subtractedData.Data, "", new GetValueDelegate( GetY ) ) );
 
             RebuildXYCharts();
+        }
+
+        private void ResizeCharts()
+        {
+            int chartMinimum;
+            int chartMaximum;
+            CalculateChartRange( out chartMinimum, out chartMaximum );
+
+            yChart.ChartAreas[ 0 ].Axes[ 0 ].Minimum = chartMinimum;
+            yChart.ChartAreas[ 0 ].Axes[ 0 ].Maximum = chartMaximum;
+
+            xChart.ChartAreas[ 0 ].Axes[ 0 ].Minimum = chartMinimum;
+            xChart.ChartAreas[ 0 ].Axes[ 0 ].Maximum = chartMaximum;
+
+            aggregateChart.ChartAreas[ 0 ].Axes[ 0 ].Minimum = chartMinimum;
+            aggregateChart.ChartAreas[ 0 ].Axes[ 0 ].Maximum = chartMaximum;
+        }
+
+        private void CalculateChartRange( out int chartMinimum, out int chartMaximum )
+        {
+            float minimumPosition = 0;
+            float maximumPosition = 0;
+
+            for ( int i = 0; i < 2; ++i )
+            {
+                if ( rawData3KHz[ i ] != null )
+                {
+                    foreach ( Datum datum in rawData3KHz[ i ] )
+                    {
+                        if ( datum.AxialPosition < minimumPosition )
+                            minimumPosition = datum.AxialPosition;
+                        if ( datum.AxialPosition > maximumPosition )
+                            maximumPosition = datum.AxialPosition;
+                    }
+                }
+            }
+
+            chartMinimum = ( ( int ) ( minimumPosition - 1000 ) ) / 1000 * 1000;
+            chartMaximum = ( ( int ) ( maximumPosition + 1000 ) ) / 1000 * 1000;
         }
 
         private void RebuildXYCharts()
@@ -94,7 +145,8 @@ namespace SlarViewer
                 }
                 if (show3KHzCalibrated[i])
                 {
-                    chart1.Series.Add(CreateXYSeries(calibratedData3KHz[i].Data, selectedMin, selectedMax));
+                    if ( calibratedData3KHz[ i ] != null )
+                        chart1.Series.Add( CreateXYSeries( calibratedData3KHz[ i ].Data, selectedMin, selectedMax ) );
                 }
                 if (show24KHzRaw[i])
                 {
@@ -102,11 +154,13 @@ namespace SlarViewer
                 }
                 if (show24KHzCalibrated[i])
                 {
-                    chart1.Series.Add(CreateXYSeries(calibratedData24KHz[i].Data, selectedMin, selectedMax));
+                    if ( calibratedData24KHz[ i ] != null )
+                        chart1.Series.Add( CreateXYSeries( calibratedData24KHz[ i ].Data, selectedMin, selectedMax ) );
                 }
                 if (showMixedCalibrated[i])
                 {
-                    chart1.Series.Add(CreateXYSeries(mixedCalibratedData[i].Data, selectedMin, selectedMax));
+                    if ( mixedCalibratedData[ i ] != null )
+                        chart1.Series.Add( CreateXYSeries( mixedCalibratedData[ i ].Data, selectedMin, selectedMax ) );
                 }
             }
         }
@@ -188,8 +242,9 @@ namespace SlarViewer
         private static Series CreateSeries(DataSet data, string name, GetValueDelegate getValue )
         {
             Series series = new Series();
-            foreach (Datum datum in data)
-                series.Points.AddXY(datum.AxialPosition, getValue(datum));
+            if ( data != null )
+                foreach ( Datum datum in data )
+                    series.Points.AddXY( datum.AxialPosition, getValue( datum ) );
             series.ChartType = SeriesChartType.FastLine;
             series.LegendText = name;
             return series;
@@ -322,7 +377,7 @@ namespace SlarViewer
 
         void secondOpen_Click(object sender, EventArgs e)
         {
-            OpenFile(2);
+            OpenFile(1);
         }
 
         private void OpenFile(int index)
@@ -339,8 +394,8 @@ namespace SlarViewer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            LoadFile(0, "..\\..\\..\\..\\data\\now.dat");
-            LoadFile(1, "..\\..\\..\\..\\data\\minus1.dat");
+            //LoadFile(0, "..\\..\\..\\..\\data\\u6good.dat");
+            //LoadFile(1, "..\\..\\..\\..\\data\\u4bad.dat");
 
             //show3KHzRaw[0] = true;
             //show3KHzCalibrated[0] = true;
@@ -400,9 +455,10 @@ namespace SlarViewer
         {
             Series series = new Series();
             series.ChartType = SeriesChartType.FastLine;
-            foreach (Datum datum in dataSet)
-                if (datum.AxialPosition > start && datum.AxialPosition < end)
-                    series.Points.AddXY(datum.Data.X, datum.Data.Y);
+            if ( dataSet != null )
+                foreach ( Datum datum in dataSet )
+                    if ( datum.AxialPosition > start && datum.AxialPosition < end )
+                        series.Points.AddXY( datum.Data.X, datum.Data.Y );
             return series;
         }
 
