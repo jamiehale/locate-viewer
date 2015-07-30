@@ -1,3 +1,6 @@
 *.suo
 obj
 bin
+src/Setup/Debug
+src/Setup/Release
+
